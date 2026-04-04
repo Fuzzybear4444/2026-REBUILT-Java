@@ -92,7 +92,7 @@ public Command autoShoot(){
 public Command pulseKick(){
     return Commands.runEnd(
         () -> kickWheelT.set(Constants.KICK_WHEEL_SPEED),
-        () -> kickWheelT.stopMotor(),
+        () -> kickWheelT.set(-0.1),
         this
     );
 }
@@ -113,10 +113,13 @@ public Command stopAllShooting(){
     );
 }
 
+<<<<<<< HEAD
 
 
 // public Command setMotorSpeedFromDistance(double distance){
 //     //System.out.println("I have set motor speed");
 //     return Shoot(distanceToMotorSpeed(distance));
 // }
+=======
+>>>>>>> 31dcfb6b6739ea1d434857769d51f956b202befa
 }

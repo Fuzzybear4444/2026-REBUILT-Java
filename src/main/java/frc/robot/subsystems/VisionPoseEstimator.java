@@ -49,6 +49,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.commands.AutoShoot;
 
@@ -324,7 +325,8 @@ import org.photonvision.EstimatedRobotPose;
 
      public boolean isAnyCameraInRange() {
         // Run both checks and return true if either camera sees a target in range
-        return isItInRange(getDistanceToTarget());
+        distance = getDistanceToTarget();
+        return isItInRange(distance);
     }
 
     // Helper method so you don't repeat the same code twice
@@ -336,7 +338,11 @@ import org.photonvision.EstimatedRobotPose;
         return false;
     }
     
+<<<<<<< HEAD
     private static final Map<Long, Double> distancesToPower;
+=======
+private static final Map<Long, Double> distancesToPower;
+>>>>>>> 31dcfb6b6739ea1d434857769d51f956b202befa
 
     static {
         distancesToPower = new HashMap<Long, Double>();;
@@ -365,6 +371,7 @@ import org.photonvision.EstimatedRobotPose;
 
 
 
+<<<<<<< HEAD
 public Double distanceToMotorSpeed(double distance){
     //System.out.println("I have done distance to motor speed");
     try {
@@ -372,6 +379,15 @@ public Double distanceToMotorSpeed(double distance){
     return distancesToPower.get(numToGet);
     }
     catch(NullPointerException e) {
+=======
+public double distanceToMotorSpeed(){
+    //System.out.println("I have done distance to motor speed");
+    try {
+    long numToGet = Math.round(Units.metersToFeet(distance));
+    double valueToReturn = distancesToPower.get(numToGet);
+    return valueToReturn;
+    } catch (NullPointerException e ){
+>>>>>>> 31dcfb6b6739ea1d434857769d51f956b202befa
         return 0.0;
     }
 }
