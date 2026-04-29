@@ -338,11 +338,7 @@ import org.photonvision.EstimatedRobotPose;
         return false;
     }
     
-<<<<<<< HEAD
-    private static final Map<Long, Double> distancesToPower;
-=======
 private static final Map<Long, Double> distancesToPower;
->>>>>>> 31dcfb6b6739ea1d434857769d51f956b202befa
 
     static {
         distancesToPower = new HashMap<Long, Double>();;
@@ -371,15 +367,6 @@ private static final Map<Long, Double> distancesToPower;
 
 
 
-<<<<<<< HEAD
-public Double distanceToMotorSpeed(double distance){
-    //System.out.println("I have done distance to motor speed");
-    try {
-    long numToGet = Math.round(Units.metersToFeet(distance));  
-    return distancesToPower.get(numToGet);
-    }
-    catch(NullPointerException e) {
-=======
 public double distanceToMotorSpeed(){
     //System.out.println("I have done distance to motor speed");
     try {
@@ -387,7 +374,6 @@ public double distanceToMotorSpeed(){
     double valueToReturn = distancesToPower.get(numToGet);
     return valueToReturn;
     } catch (NullPointerException e ){
->>>>>>> 31dcfb6b6739ea1d434857769d51f956b202befa
         return 0.0;
     }
 }

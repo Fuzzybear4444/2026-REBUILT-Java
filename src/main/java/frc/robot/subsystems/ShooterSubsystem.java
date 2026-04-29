@@ -3,7 +3,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map;
 import java.util.HashMap;
-
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.CANBus;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfigurator;
@@ -46,7 +46,7 @@ shooterConfig.CurrentLimits.SupplyCurrentLimit=25;
 shooterConfig.CurrentLimits.SupplyCurrentLimitEnable=true;
 
  kickWheel = new SparkMax(Constants.KICK_WHEEL, SparkLowLevel.MotorType.kBrushless);
-//motor2.setControl(new Follower(Constants.motor1, null));
+    motor2.setControl(new Follower(Constants.motor1, true));
 }
 public Command Shoot(double Speed){
  
@@ -113,13 +113,4 @@ public Command stopAllShooting(){
     );
 }
 
-<<<<<<< HEAD
-
-
-// public Command setMotorSpeedFromDistance(double distance){
-//     //System.out.println("I have set motor speed");
-//     return Shoot(distanceToMotorSpeed(distance));
-// }
-=======
->>>>>>> 31dcfb6b6739ea1d434857769d51f956b202befa
 }
