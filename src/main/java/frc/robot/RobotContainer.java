@@ -89,6 +89,7 @@ public class RobotContainer {
          * private boolean hasSetupAutoChoosers = false;
          */
         public RobotContainer() {
+               // NamedCommands.registerCommand("stallAuto",());
                 NamedCommands.registerCommand("shoot", shooterSubsystem.Shoot(.54));
                 NamedCommands.registerCommand("index", shooterSubsystem.kick(.5));
                 NamedCommands.registerCommand("stopShoot", shooterSubsystem.stopSpin());
