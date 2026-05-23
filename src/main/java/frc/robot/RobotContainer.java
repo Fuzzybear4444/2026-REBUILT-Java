@@ -148,7 +148,7 @@ public class RobotContainer {
         );
         // controler buttons 
         // intake buttons 
-        auxDriver.rightBumper().whileTrue(intakeSubsystem.intakeOn(-0.5));
+        auxDriver.rightBumper().whileTrue(intakeSubsystem.intakeOn(0.7));
         auxDriver.rightBumper().onFalse(intakeSubsystem.intakeOff());
         //arm buttons 
         auxDriver.povRight().onTrue(armSubsystem.armPositionContols(40));
@@ -161,7 +161,7 @@ public class RobotContainer {
         Driver.x().onTrue(drivetrain.applyRequest(() -> brake));
         //system clear
         auxDriver.leftTrigger().whileTrue(shooterSubsystem.shootBack(.7));
-        auxDriver.leftTrigger().onTrue(intakeSubsystem.intakeOn(0.7));
+        auxDriver.leftTrigger().onTrue(intakeSubsystem.intakeOn(-0.7));
         auxDriver.leftTrigger().onFalse(shooterSubsystem.stopSpin());
         auxDriver.leftTrigger().onFalse(intakeSubsystem.intakeOff());
         auxDriver.leftTrigger().onTrue(shooterSubsystem.kickT(.1));
