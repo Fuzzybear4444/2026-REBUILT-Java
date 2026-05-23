@@ -7,6 +7,7 @@ import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
@@ -92,5 +93,13 @@ public class ArmSubsystemKraken extends SubsystemBase {
 
     public Command stopArm() {
         return new InstantCommand(() -> armMotor.stopMotor());
+    }
+    /*
+     * conrls the the arm moter to move in a spicfied way the position is he location want the motor to move
+     */
+    public Command armPositionContols(double position){
+       
+     return new InstantCommand(()-> armMotor.setControl(ArmSubsystemVoltage.withPosition( position)));
+    
     }
 }
