@@ -35,7 +35,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystemKraken;
-//import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -50,19 +49,154 @@ import frc.robot.subsystems.VisionPipelineRunnable;
 import frc.robot.subsystems.VisionPoseEstimator;
 
 public class RobotContainer {
-        private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired
-                                                                                            // top
-                                                                                            // speed
-        private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-                                                                                          // second
-                                                                                          // max angular velocity
+    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
-        /* Setting up bindings for necessary control of the swerve drive platform */
-        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-                        .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-                        .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors
-        private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-        private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+    /* Setting up bindings for necessary control of the swerve drive platform */
+    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
+            .withDriveRequestType(DriveRequestType.Velocity); // Use open-loop control for drive motors
+    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+    private final Telemetry logger = new Telemetry(MaxSpeed);
+//controllers 
+    private final CommandXboxController Driver = new CommandXboxController(0);
+    private final CommandXboxController auxDriver = new CommandXboxController(1);
+//subsystems 
+    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    public final ShooterSubsystem shooterSubsystem = new ShooterSubsystem();
+    public final ArmSubsystemKraken armSubsystem = new ArmSubsystemKraken();
+    public final ClimberSubsystem ClimberSubsystem = new ClimberSubsystem();
+    public final VisionModule visionModule = new VisionModule();
+    //public final VisionPoseEstimator visionPoseEstimator =  VisionPoseEstimator.getInstance();
+
+     private final SendableChooser<Command> autoChooser = new SendableChooser<>();
+    
+    /* private final SendableChooser<Integer> numOfAutoActions;
+    private List<SendableChooser<Command>> selectedPathActions = new ArrayList<>();
+    private List<SendableChooser<Command>> selectedNoteActions = new ArrayList<>();
+    private boolean hasSetupAutoChoosers = false;
+*/
+    public RobotContainer() {
+        NamedCommands.registerCommand("Brake",drivetrain.applyRequest(() -> brake) );
+        NamedCommands.registerCommand("shoot",shooterSubsystem.Shoot(.54));
+        NamedCommands.registerCommand("index",shooterSubsystem.kick(.5));
+        NamedCommands.registerCommand("stopShoot",shooterSubsystem.stopSpin());
+        NamedCommands.registerCommand("stopIndex",shooterSubsystem.KickOff());
+        NamedCommands.registerCommand("shootMiddile",shooterSubsystem.autoShoot());
+        NamedCommands.registerCommand("Shoot", shooterSubsystem.autoShoot());
+        NamedCommands.registerCommand("ShootOff", shooterSubsystem.stopSpin());
+        //NamedCommands.registerCommand("ShootTheFuel", shooterSubsystem.shootInAutoPaths(.52));
+       // NamedCommands.registerCommand("ShootTheFuelWithDistanceToPower", shooterSubsystem.shootInAutoPaths(shooterSubsystem.distanceToMotorSpeed(VisionPoseEstimator.getInstance().getDistanceToTarget())));
+        NamedCommands.registerCommand("StopShooting", shooterSubsystem.stopAllShooting());
+        NamedCommands.registerCommand("KickerWheelOn", shooterSubsystem.kickT(Constants.KICK_WHEEL_SPEED));
+         NamedCommands.registerCommand("KickerWheelOff", shooterSubsystem.KickOffT());
+        NamedCommands.registerCommand("PulseKick", shooterSubsystem.pulseKick().withTimeout(Constants.KICK_WHEEL_TIMEOUT).andThen(new WaitCommand(1.5)).repeatedly());
+        File pathPlannerFolder = new File(Filesystem.getDeployDirectory(), "pathplanner/autos");
+        String[] autoFiles = pathPlannerFolder.list((dir, name) -> name.endsWith(".auto"));
+        autoChooser.setDefaultOption("Default Auto", new InstantCommand());
+        if (autoFiles != null) {
+            for (String fileName : autoFiles) {
+        // Remove extension for display
+        String autoName = fileName.replace(".auto", "");
+        System.out.println("autoname");
+        autoChooser.addOption(autoName, AutoBuilder.buildAuto(autoName));
+       
+            }
+             SmartDashboard.putData("Auto Mode", autoChooser);
+        }       
+        
+    
+
+        // Initialize the chooser
+    // autoChooser.setDefaultOption("Default Auto", new InstantCommand());
+    // autoChooser.addOption("Test1", AutoBuilder.buildAuto("TestAuto"));
+    // SmartDashboard.putData("Auto Mode", autoChooser);
+    
+        configureBindings();
+
+        
+       // NamedCommands.registerCommand("ShootTheFuel", shooterSubsystem.shootInAuto(Constants.SPEED_OF_SHOOTER_LEFT_FACE).withTimeout(5));
+
+    }   
+
+         public Command getAutonomousCommand() {
+            System.out.println("Run");
+           System.out.println(autoChooser.getSelected().getName());
+        return autoChooser.getSelected();
+    }
+
+    private void configureBindings() {
+        // Note that X is defined as forward according to WPILib convention,
+        // and Y is defined as to the left according to WPILib convention.
+        drivetrain.setDefaultCommand(
+            // Drivetrain will execute this command periodically
+            drivetrain.applyRequest(() ->
+                drive.withVelocityX(Driver.getLeftY()* MaxSpeed) // Drive forward with negative Y (forward)
+                    .withVelocityY(Driver.getLeftX() * MaxSpeed) // Drive left with negative X (left)
+                    .withRotationalRate(-Driver.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
+            )
+        );
+
+        // Idle while the robot is disabled. This ensures the configured
+        // neutral mode is applied to the drive motors while disabled.
+        final var idle = new SwerveRequest.Idle();
+        RobotModeTriggers.disabled().whileTrue(
+            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
+        );
+        // controler buttons 
+        // intake buttons 
+        auxDriver.rightBumper().whileTrue(intakeSubsystem.intakeOn(0.7));
+        auxDriver.rightBumper().onFalse(intakeSubsystem.intakeOff());
+        //arm buttons 
+        auxDriver.povRight().onTrue(armSubsystem.armPositionContols(40));
+        auxDriver.povLeft().onFalse(armSubsystem.armPositionContols(0));
+        auxDriver.povUp().onTrue(armSubsystem.armUp());
+        auxDriver.povDown().onTrue(armSubsystem.armDown());
+        auxDriver.povCenter().onTrue(armSubsystem.stopArm());
+
+        
+        Driver.x().onTrue(drivetrain.applyRequest(() -> brake));
+        //system clear
+        auxDriver.leftTrigger().whileTrue(shooterSubsystem.shootBack(.7));
+        auxDriver.leftTrigger().onTrue(intakeSubsystem.intakeOn(-0.7));
+        auxDriver.leftTrigger().onFalse(shooterSubsystem.stopSpin());
+        auxDriver.leftTrigger().onFalse(intakeSubsystem.intakeOff());
+        auxDriver.leftTrigger().onTrue(shooterSubsystem.kickT(.1));
+        auxDriver.leftTrigger().onFalse(shooterSubsystem.KickOffT());
+        //talon kick buttons
+        Driver.rightBumper().onTrue(shooterSubsystem.kickT(-.1));
+        Driver.rightBumper().onFalse(shooterSubsystem.KickOffT());
+        auxDriver.leftBumper().onTrue(shooterSubsystem.kickT(-.1));
+        auxDriver.leftBumper().onFalse(shooterSubsystem.KickOffT());
+
+        auxDriver.rightTrigger().whileTrue(shooterSubsystem.Shoot(Constants.SPEED_OF_SHOOTER_LEFT_FACE));
+        auxDriver.rightTrigger().onFalse(shooterSubsystem.stopSpin());
+        auxDriver.a().whileTrue(shooterSubsystem.pulseKick().withTimeout(Constants.KICK_WHEEL_TIMEOUT).andThen(new WaitCommand(1.5)).repeatedly());
+        auxDriver.a().onFalse(shooterSubsystem.KickOffT());
+        
+        Driver.b().whileTrue(drivetrain.applyRequest(() ->
+            point.withModuleDirection(new Rotation2d(Driver.getLeftY(), Driver.getLeftX()))
+        ));
+
+        // Run SysId routines when holding back/start and X/Y.
+        // Note that each routine should be run exactly once in a single log.
+        Driver.back().and(Driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        Driver.back().and(Driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        Driver.start().and(Driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        Driver.start().and(Driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+
+        // Reset the field-centric heading on left bumper press.
+        Driver.a().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+
+        drivetrain.registerTelemetry(logger::telemeterize);
+    
+    }
+
+    }
+
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         // controllers
