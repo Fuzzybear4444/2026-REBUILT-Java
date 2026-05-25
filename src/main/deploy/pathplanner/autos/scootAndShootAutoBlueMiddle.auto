@@ -13,7 +13,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "shoot"
           }
         },
         {
@@ -26,6 +26,12 @@
           "type": "named",
           "data": {
             "name": "KickerWheelOn"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "intakeOn"
           }
         },
         {

@@ -89,13 +89,16 @@ public class RobotContainer {
          * private boolean hasSetupAutoChoosers = false;
          */
         public RobotContainer() {
-                NamedCommands.registerCommand("shoot", shooterSubsystem.Shoot(.54));
+                NamedCommands.registerCommand("shoot", shooterSubsystem.Shoot(.51));
                 NamedCommands.registerCommand("index", shooterSubsystem.kick(.5));
                 NamedCommands.registerCommand("stopShoot", shooterSubsystem.stopSpin());
                 NamedCommands.registerCommand("stopIndex", shooterSubsystem.KickOff());
                 NamedCommands.registerCommand("shootMiddile", shooterSubsystem.autoShoot());
                 NamedCommands.registerCommand("Shoot", shooterSubsystem.autoShoot());
                 NamedCommands.registerCommand("ShootOff", shooterSubsystem.stopSpin());
+                NamedCommands.registerCommand("intakeOn", intakeSubsystem.intakeOn(0.8));
+                NamedCommands.registerCommand("intakeOff", intakeSubsystem.intakeOff());
+                NamedCommands.registerCommand("Brake", drivetrain.applyRequest(() -> brake));
                 // NamedCommands.registerCommand("ShootTheFuel",
                 // shooterSubsystem.shootInAutoPaths(.52));
                 // NamedCommands.registerCommand("ShootTheFuelWithDistanceToPower",
@@ -105,6 +108,7 @@ public class RobotContainer {
                 NamedCommands.registerCommand("KickerWheelOff", shooterSubsystem.KickOffT());
                 NamedCommands.registerCommand("PulseKick", shooterSubsystem.pulseKick()
                                 .withTimeout(Constants.KICK_WHEEL_TIMEOUT).andThen(new WaitCommand(1.5)).repeatedly());
+
                 File pathPlannerFolder = new File(Filesystem.getDeployDirectory(), "pathplanner/autos");
                 String[] autoFiles = pathPlannerFolder.list((dir, name) -> name.endsWith(".auto"));
                 autoChooser.setDefaultOption("Default Auto", new InstantCommand());
@@ -193,7 +197,7 @@ public class RobotContainer {
                 // auxDriver.povUp().onTrue(armSubsystemKraken.armToNeutralLevel());
                 // auxDriver.povLeft().onTrue(armSubsystemKraken.ArmIntake());
                 // auxDriver.povDown().onTrue(armSubsystemKraken.ArmWiggle());
-                // auxDriver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+                auxDriver.a().whileTrue(drivetrain.applyRequest(() -> brake));
                 // system clear
 
                 Driver.rightBumper().onTrue(shooterSubsystem.kickT(.1));
